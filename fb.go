@@ -129,6 +129,23 @@ func Delallpositions(bookname string){
 	}
 }
 
+func (b Book) Getallpositions() []Position{
+	positions := make([]Position, 0)
+	iter := bookscollection.Doc(b.Id).Collection("positions").Documents(ctx)
+	for {
+		doc, err := iter.Next()				
+		if err == iterator.Done {
+				break
+		}
+		if err != nil {
+				log.Fatalf("Failed to iterate: %v", err)
+		}
+		p := PositionFromdocsnapshot(doc)
+		positions = append(positions, p)
+	}
+	return positions
+}
+
 func Getanalysisroots() []Analysisroot{
 	iter := analysisrootscollection.Documents(ctx)
 	ars := make([]Analysisroot, 0)

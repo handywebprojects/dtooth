@@ -2,6 +2,8 @@ package main
 
 import(
 	"fmt"
+	"time"
+
 	"github.com/handywebprojects/abb"
 )
 
@@ -12,6 +14,10 @@ func main(){
 	fmt.Println("analysis root", ar)
 	//abb.Delallpositions("defaultstandard")
 	b := abb.NewBook(ar.Bookname, ar.Bookvariantkey, ar.Fen)
+	start := time.Now()
+	fmt.Println("getting all positions from the book")
+	ps := b.Getallpositions()
+	fmt.Println("done, number of positions", len(ps), "took", time.Since(start))
 	for i := 0; i < 10; i++ {
 		fmt.Println("cycle", i)
 		b.Addone(ar.Depth, ar.Enginedepth)
