@@ -17,7 +17,9 @@ func main(){
 	start := time.Now()
 	fmt.Println("getting all positions from the book")
 	ps := b.Getallpositions()
-	fmt.Println("done, number of positions", len(ps), "took", time.Since(start))
+	numpos := len(ps)
+	elapsed := time.Since(start)
+	fmt.Println("done, number of positions", numpos, "took", elapsed, "rate", float32(numpos) / float32(elapsed) * 1e9, "pos/sec")
 	for i := 0; i < 10; i++ {
 		fmt.Println("cycle", i)
 		b.Addone(ar.Depth, ar.Enginedepth)
