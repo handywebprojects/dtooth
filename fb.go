@@ -194,7 +194,7 @@ func Getanalysisroots() []Analysisroot{
 	}
 	if len(ars) == 0 {
 		fmt.Println("no analysis roots found, creating one")
-		sr := Analysisroot{START_FEN, 10, 14, "default", "standard"}		
+		sr := Analysisroot{START_FEN, 10, 14, "default", "atomic"}		
 		Addanalysisroot(Fen2docid(START_FEN), sr)				
 		ars = append(ars, sr)
 	}

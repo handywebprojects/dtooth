@@ -107,11 +107,12 @@ func (p Position) Serialize() map[string]interface{}{
 	return m
 }
 
-func Analyze(fen string, depth int) Position {
+func Analyze(fen string, depth int, variantkey string) Position {
 	Eng.SetOptions(uci.Options{
+		UCI_Variant:variantkey,
 		Hash:128,
 		Threads:1,
-		MultiPV:250,
+		MultiPV:250,		
 	})
 
 	Eng.SetFEN(fen)
@@ -140,6 +141,7 @@ func Analyze(fen string, depth int) Position {
 		mi := MultipvItem{move.BestMoves[0], score, score, depth}
 		p.SetMove(mi)
 	}
+	fmt.Println(p)
 
 	return p
 }
@@ -163,11 +165,25 @@ func Fen2docid(fen string) string{
 	return docid
 }
 
-func MakeAlgebmove(algeb string, fen string) string{
+func MakeAlgebmoveStandard(algeb string, fen string) string{
 	move, _ := dragontoothmg.ParseMove(algeb)
 	board := dragontoothmg.ParseFen(fen)
 	board.Apply(move)
 	return board.ToFen()
+}
+
+func MakeAlgebmoveAtomic(algeb string, fen string) string{
+	move, _ := dragontoothmg.ParseMove(algeb)
+	board := dragontoothmg.ParseFen(fen)
+	board.Apply(move)
+	return board.ToFen()
+}
+
+func (b Book) MakeAlgebmove(algeb string, fen string) string{
+	if b.Variantkey == "atomic"{
+		return MakeAlgebmoveAtomic(algeb, fen)
+	}
+	return MakeAlgebmoveStandard(algeb, fen)
 }
 
 func (b Book) SelectRecursive(fen string, depth int64, maxdepth int64, line []string) string{
@@ -184,7 +200,7 @@ func (b Book) SelectRecursive(fen string, depth int64, maxdepth int64, line []st
 		}
 		sel := rand.Intn(maxmoves)
 		selmove := mli[sel]
-		newfen := MakeAlgebmove(selmove.Algeb, fen)
+		newfen := b.MakeAlgebmove(selmove.Algeb, fen)
 		return b.SelectRecursive(newfen, depth + 1, maxdepth, append(line, selmove.Algeb))
 	}else{
 		fmt.Println("selected", fen)
@@ -208,7 +224,7 @@ func (b Book) Addone(maxdepth int64, enginedepth int64) string{
 		return ""
 	}else{
 		fmt.Println("analyzing", fen)
-		p := Analyze(fen, int(enginedepth))
+		p := Analyze(fen, int(enginedepth), b.Variantkey)
 		fmt.Println("storing", fen, p.Docid)
 		b.StorePosition(p)
 		return fen
@@ -231,7 +247,7 @@ func (b *Book) Minimaxrecursive(fen string, line []string, docids []string, dept
 	}
 	nodes += 1
 	for algeb, mi := range p.Moves{		
-		newfen := MakeAlgebmove(algeb, fen)
+		newfen := b.MakeAlgebmove(algeb, fen)
 		value, newseldepth, newnodes := b.Minimaxrecursive(newfen, append(line, algeb), append(docids, docid), depth + 1, maxdepth, seldepth, nodes)
 		seldepth = newseldepth
 		nodes = newnodes

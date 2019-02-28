@@ -11,7 +11,7 @@ func main(){
 	ars := abb.Getanalysisroots()
 	ar := ars[0]	
 	fmt.Println("analysis root", ar)
-	//abb.Delallpositions("defaultstandard")
+	//abb.Delallpositions("defaultatomic")
 	b := abb.NewBook(ar.Bookname, ar.Bookvariantkey, ar.Fen)	
 	for i := 0; i < 10; i++ {
 		fmt.Println("cycle", i)
