@@ -214,3 +214,48 @@ func (b Book) Addone(maxdepth int64, enginedepth int64) string{
 		return fen
 	}	
 }
+
+func (b *Book) Minimaxrecursive(fen string, line []string, docids []string, depth int64, maxdepth int64, seldepth int64, nodes int64) (int64, int64, int64){
+	//fmt.Println("minimax", fen, line, docids, depth, maxdepth)
+	max := int64(-INF_SCORE)
+	if depth > maxdepth{		
+		return 2 * max, seldepth, nodes
+	}
+	docid := Fen2docid(fen)
+	p, ok := b.Poscache[docid]
+	if !ok{		
+		return 2 * max, seldepth, nodes
+	}
+	if depth > seldepth{
+		seldepth = depth
+	}
+	nodes += 1
+	for algeb, mi := range p.Moves{		
+		newfen := MakeAlgebmove(algeb, fen)
+		value, newseldepth, newnodes := b.Minimaxrecursive(newfen, append(line, algeb), append(docids, docid), depth + 1, maxdepth, seldepth, nodes)
+		seldepth = newseldepth
+		nodes = newnodes
+		if value < -INF_SCORE{
+			value = mi.Score
+		}	
+		p.Moves[algeb] = MultipvItem{algeb, mi.Score, value, mi.Depth}
+		if depth == 0{
+			fmt.Println(algeb, mi.Score, value)	
+		}		
+		if value > max{
+			max = value
+		}
+	}
+	return -max, seldepth, nodes
+}
+
+func (b *Book) Minimaxout(maxdepth int64){
+	start := time.Now()
+	fmt.Println("minimaxing out", b.Fullname())
+	b.Synccache()
+	value, seldepth, nodes := b.Minimaxrecursive(b.Rootfen, []string{}, []string{}, 0, maxdepth, 0, 0)
+	fmt.Println("minimax done", -value, seldepth, nodes)
+	elapsed := time.Since(start)
+	fmt.Println("minimaxing done", b.Fullname(), "took", elapsed, "rate", float32(nodes) / float32(elapsed) * 1e9)
+	b.Uploadcache()		
+}

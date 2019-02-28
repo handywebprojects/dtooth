@@ -3,6 +3,7 @@ package abb
 import (
 	"fmt"	
 	"context"	
+	"time"
 	"log"
 
 	firebase "firebase.google.com/go"
@@ -144,6 +145,30 @@ func (b Book) Getallpositions() []Position{
 		positions = append(positions, p)
 	}
 	return positions
+}
+
+func (b *Book) Synccache(){
+	start := time.Now()
+	fmt.Println("syncing cache", b.Fullname())
+	ps := b.Getallpositions()
+	numpos := len(ps)
+	b.Poscache = make(map[string]Position)
+	for _, p := range ps{
+		b.Poscache[p.Docid] = p
+	}
+	elapsed := time.Since(start)
+	fmt.Println("syncing cache done", b.Fullname(), "number of positions", numpos, "took", elapsed, "rate", float32(numpos) / float32(elapsed) * 1e9, "pos/sec")
+}
+
+func (b *Book) Uploadcache(){
+	start := time.Now()
+	fmt.Println("uploading cache", b.Fullname())
+	for _, p := range b.Poscache{
+		b.StorePosition(p)
+	}
+	numpos := len(b.Poscache)
+	elapsed := time.Since(start)
+	fmt.Println("uploading cache done", b.Fullname(), "number of positions", numpos, "took", elapsed, "rate", float32(numpos) / float32(elapsed) * 1e9, "pos/sec")
 }
 
 func Getanalysisroots() []Analysisroot{
