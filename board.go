@@ -128,7 +128,7 @@ func Analyze(fen string, depth int, variantkey string) Position {
 		depth := int64(move.Depth)
 		if move.Mate{
 			if score < 0{
-				score = -INF_SCORE + score
+				score = -INF_SCORE - score
 			}else{
 				score = INF_SCORE - score
 			}

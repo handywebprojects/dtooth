@@ -13,7 +13,7 @@ func main(){
 	fmt.Println("analysis root", ar)
 	//abb.Delallpositions("defaultatomic")
 	b := abb.NewBook(ar.Bookname, ar.Bookvariantkey, ar.Fen)			
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 50; i++ {
 		fmt.Println("cycle", i)
 		b.Addone(ar.Depth, ar.Enginedepth)
 		fmt.Println("position cache size", len(b.Poscache))
