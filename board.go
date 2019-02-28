@@ -400,6 +400,9 @@ func (b Book) SelectRecursive(fen string, depth int64, maxdepth int64, line []st
 	if b.Hasfen(fen){
 		mli := b.Getmovesbyfen(fen)
 		maxmoves := 3
+		if depth == 0{
+			maxmoves = 10
+		}
 		if len(mli) < 3{
 			maxmoves = len(mli)
 		}
