@@ -1,0 +1,31 @@
+{
+  "BestMove": "c2c3",
+  "Results": [
+    {
+      "Time": 79,
+      "Depth": 10,
+      "SelDepth": 14,
+      "Nodes": 32851,
+      "NodesPerSecond": 415835,
+      "MultiPV": 1,
+      "Lowerbound": false,
+      "Upperbound": false,
+      "Score": -7,
+      "Mate": false,
+      "BestMoves": [
+        "c2c3",
+        "e7e5",
+        "d2d4",
+        "e5d4",
+        "g1f3",
+        "d4c3",
+        "b1c3",
+        "b8c6",
+        "e2e4",
+        "f8b4",
+        "c1g5",
+        "g8f6"
+      ]
+    }
+  ]
+}
