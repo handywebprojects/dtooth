@@ -279,6 +279,10 @@ func ijok(i int, j int) bool{
 	return true
 }
 
+func ijalgeb(i int, j int) string{
+	return fmt.Sprintf("%c%c", 97+i, 56-j)
+}
+
 func (b *Board) Makealgebmove(algeb string){
 	fromi, fromj := Sqindeces(algeb[0:2])
 	toi, toj := Sqindeces(algeb[2:4])	
@@ -286,6 +290,36 @@ func (b *Board) Makealgebmove(algeb string){
 	toindex := index(toi, toj)
 	fromp := b.Rep[fromindex]	
 	top := b.Rep[toindex]	
+	if fromp.Kind == "p"{
+		if ( fromj - toj ) == 2{
+			if ijok(toi-1, toj){
+				tp := b.Rep[index(toi-1, toj)]
+				if ( tp.Kind == "p" ) && ( tp.Color == 0 ){
+					b.Epfen = ijalgeb(toi, toj+1)
+				}				
+			}
+			if ijok(toi+1, toj){
+				tp := b.Rep[index(toi+1, toj)]
+				if ( tp.Kind == "p" ) && ( tp.Color == 0 ){
+					b.Epfen = ijalgeb(toi, toj+1)
+				}				
+			}
+		}
+		if ( toj - fromj ) == 2{
+			if ijok(toi-1, toj){
+				tp := b.Rep[index(toi-1, toj)]
+				if ( tp.Kind == "p" ) && ( tp.Color == 1 ){
+					b.Epfen = ijalgeb(toi, toj-1)
+				}				
+			}
+			if ijok(toi+1, toj){
+				tp := b.Rep[index(toi+1, toj)]
+				if ( tp.Kind == "p" ) && ( tp.Color == 1 ){
+					b.Epfen = ijalgeb(toi, toj-1)
+				}				
+			}
+		}
+	}
 	b.Rep[fromindex] = Piece{"-", 0}
 	b.Rep[toindex] = fromp
 	cK := false
@@ -337,23 +371,7 @@ func (b *Board) Makealgebmove(algeb string){
 			ck = false
 			cq = false
 		}
-	}	
-	b.Castlefen = ""
-	if cK{
-		b.Castlefen+="K"
-	}
-	if cQ{
-		b.Castlefen+="Q"
-	}
-	if ck{
-		b.Castlefen+="k"
-	}
-	if cq{
-		b.Castlefen+="q"
-	}
-	if b.Castlefen==""{
-		b.Castlefen="-"
-	}
+	}		
 	if len(algeb) == 5{
 		b.Rep[toindex] = Piece{algeb[4:5], fromp.Color}
 	}
@@ -373,6 +391,34 @@ func (b *Board) Makealgebmove(algeb string){
 				}
 			}
 		}
+	}
+	if b.Rep[63].Kind == "-"{
+		cK = false
+	}
+	if b.Rep[56].Kind == "-"{
+		cQ = false
+	}
+	if b.Rep[7].Kind == "-"{
+		ck = false
+	}
+	if b.Rep[0].Kind == "-"{
+		cq = false
+	}
+	b.Castlefen = ""
+	if cK{
+		b.Castlefen+="K"
+	}
+	if cQ{
+		b.Castlefen+="Q"
+	}
+	if ck{
+		b.Castlefen+="k"
+	}
+	if cq{
+		b.Castlefen+="q"
+	}
+	if b.Castlefen==""{
+		b.Castlefen="-"
 	}
 }
 
@@ -399,9 +445,15 @@ func (b Book) SelectRecursive(fen string, depth int64, maxdepth int64, line []st
 	}
 	if b.Hasfen(fen){
 		mli := b.Getmovesbyfen(fen)
-		maxmoves := 3
+		maxmoves := 2
 		if depth == 0{
 			maxmoves = 10
+		}
+		if depth == 1{
+			maxmoves = 3
+		}
+		if depth == 2{
+			maxmoves = 3
 		}
 		if len(mli) < 3{
 			maxmoves = len(mli)

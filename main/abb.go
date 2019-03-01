@@ -9,12 +9,20 @@ import(
 	"github.com/handywebprojects/abb"
 )
 
+func boardtest(){
+	board := abb.Board{}
+	board.Setfromfen(abb.START_FEN)
+	board.Makealgebmove("e2e4")	
+	fmt.Println(board.Tostring())
+}
+
 func main(){
 	fmt.Println("Auto Book Builder", abb.Client)
-	ars := abb.Getanalysisroots()
-	ar := ars[0]	
-	fmt.Println("analysis root", ar)
-	//abb.Delallpositions("defaultatomic")
+	//ars := abb.Getanalysisroots()
+	//ar := ars[0]	
+	//abb.Delallpositions("defaultatomic")	
+	ar := abb.Analysisroot{abb.START_FEN, 20, 15, "default", "atomic"}
+	fmt.Println("analysis root", ar)	
 	b := abb.NewBook(ar.Bookname, ar.Bookvariantkey, ar.Fen)			
 
 	numcycles := 1
