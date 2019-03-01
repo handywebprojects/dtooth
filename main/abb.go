@@ -20,7 +20,19 @@ func main(){
 	//ar := ars[0]	
 	//abb.Delallpositions("defaultatomic")	
 
-	ar := abb.Analysisroot{abb.START_FEN, int64(abb.Envint("ANALYSISDEPTH", abb.DEFAULT_ANALYSISDEPTH)), int64(abb.Envint("ENGINEDEPTH", abb.DEFAULT_ENGINEDEPTH)), abb.DEFAULT_BOOKNAME, abb.DEFAULT_VARIANTKEY, abb.DEFAULT_NUMCYCLES, abb.DEFAULT_BATCHSIZE, abb.Envint("WIDTH0", abb.DEFAULT_WIDTH0), abb.Envint("WIDTH1", abb.DEFAULT_WIDTH1), abb.Envint("WIDTH2", abb.DEFAULT_WIDTH2)}
+	ar := abb.Analysisroot{
+		abb.Envstr("ANALYSISROOT", abb.START_FEN),
+		int64(abb.Envint("ANALYSISDEPTH", abb.DEFAULT_ANALYSISDEPTH)),
+		int64(abb.Envint("ENGINEDEPTH", abb.DEFAULT_ENGINEDEPTH)),
+		abb.Envstr("BOOKNAME", abb.DEFAULT_BOOKNAME),
+		abb.Envstr("VARIANTKEY", abb.DEFAULT_VARIANTKEY),
+		abb.Envint("NUMCYCLES", abb.DEFAULT_NUMCYCLES),
+		abb.Envint("BATCHSIZE", abb.DEFAULT_BATCHSIZE),
+		abb.Envint("WIDTH0", abb.DEFAULT_WIDTH0),
+		abb.Envint("WIDTH1", abb.DEFAULT_WIDTH1),
+		abb.Envint("WIDTH2", abb.DEFAULT_WIDTH2),
+	}
+	
 	fmt.Println("analysis root", ar)		
 
 	b := abb.NewBook(ar.Bookname, ar.Bookvariantkey, ar.Fen)				

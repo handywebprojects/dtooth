@@ -484,7 +484,7 @@ func (b Book) SelectRecursive(fen string, depth int64, ar Analysisroot, line []s
 }
 
 func (b Book) Select(ar Analysisroot) string{
-	return b.SelectRecursive(b.Rootfen, 0, ar, []string{})
+	return b.SelectRecursive(ar.Fen, 0, ar, []string{})
 }
 
 func (b Book) Fullname() string{

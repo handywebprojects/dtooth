@@ -18,3 +18,10 @@ func Envint(key string, defaultvalue int) int{
 	return defaultvalue
 }
 
+func Envstr(key string, defaultvalue string) string{
+	valuestr, haskey := os.LookupEnv(key)
+	if haskey{
+		return valuestr
+	}
+	return defaultvalue
+}
