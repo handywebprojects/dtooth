@@ -19,28 +19,24 @@ func main(){
 	//ars := abb.Getanalysisroots()
 	//ar := ars[0]	
 	//abb.Delallpositions("defaultatomic")	
-	ar := abb.Analysisroot{abb.START_FEN, int64(abb.Envint("ANALYSISDEPTH", 20)), int64(abb.Envint("ENGINEDEPTH", 20)), "default", "atomic"}
-	fmt.Println("analysis root", ar)	
-	fmt.Println("analysis widths", abb.Envint("WIDTH0", abb.DEFAULT_WIDTH0), abb.Envint("WIDTH1", abb.DEFAULT_WIDTH1), abb.Envint("WIDTH2", abb.DEFAULT_WIDTH2))	
+
+	ar := abb.Analysisroot{abb.START_FEN, int64(abb.Envint("ANALYSISDEPTH", abb.DEFAULT_ANALYSISDEPTH)), int64(abb.Envint("ENGINEDEPTH", abb.DEFAULT_ENGINEDEPTH)), abb.DEFAULT_BOOKNAME, abb.DEFAULT_VARIANTKEY, abb.DEFAULT_NUMCYCLES, abb.DEFAULT_BATCHSIZE, abb.Envint("WIDTH0", abb.DEFAULT_WIDTH0), abb.Envint("WIDTH1", abb.DEFAULT_WIDTH1), abb.Envint("WIDTH2", abb.DEFAULT_WIDTH2)}
+	fmt.Println("analysis root", ar)		
+
 	b := abb.NewBook(ar.Bookname, ar.Bookvariantkey, ar.Fen)				
 
 	b.Synccache()
 
-	numcycles := abb.Envint("NUMCYCLES", 1)
-
-	fmt.Println("build book", b.Fullname(), "cycles", numcycles)
 	//time.Sleep(10 * time.Second)
-
-	for cycle := 0; cycle < numcycles; cycle++{
-		fmt.Println("build cycle", cycle, "of", numcycles)
+	for cycle := 0; cycle < ar.Numcycles; cycle++{
+		fmt.Println("build cycle", cycle + 1, "of", ar.Numcycles)
 		//time.Sleep(10 * time.Second)
-		for i := 0; i < 5; i++ {
+		for i := 0; i < ar.Batchsize; i++ {
 			fmt.Println("cycle", i)
-			b.Addone(ar.Depth, ar.Enginedepth)
+			b.Addone(ar)
 			fmt.Println("position cache size", len(b.Poscache))
 		}	
 		b.Minimaxout(ar.Depth)
 		time.Sleep(5 * time.Minute)
 	}
 }
-

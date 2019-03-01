@@ -106,6 +106,11 @@ type Analysisroot struct{
 	Enginedepth int64
 	Bookname string
 	Bookvariantkey string	
+	Numcycles int
+	Batchsize int
+	Width0 int
+	Width1 int
+	Width2 int
 }
 
 func Addanalysisroot(id string, ar Analysisroot){
@@ -188,13 +193,18 @@ func Getanalysisroots() []Analysisroot{
 			enginedepth := data["enginedepth"].(int64)	
 			bookname := data["bookname"].(string)
 			bookvariantkey := data["bookvariantkey"].(string)	
-			ars = append(ars, Analysisroot{fen, depth, enginedepth, bookname, bookvariantkey})
+			numcycles := data["numcycles"].(int)	
+			batchsize := data["batchsize"].(int)	
+			width0 := data["width0"].(int)	
+			width1 := data["width1"].(int)	
+			width2 := data["width2"].(int)	
+			ars = append(ars, Analysisroot{fen, depth, enginedepth, bookname, bookvariantkey, numcycles, batchsize, width0, width1, width2})
 			//fmt.Println(fen, depth, doc.Ref.ID)
 			//doc.Ref.Delete(ctx)
 	}
 	if len(ars) == 0 {
 		fmt.Println("no analysis roots found, creating one")
-		sr := Analysisroot{START_FEN, 10, 14, "default", "atomic"}		
+		sr := Analysisroot{START_FEN, DEFAULT_ANALYSISDEPTH, DEFAULT_ENGINEDEPTH, DEFAULT_BOOKNAME, DEFAULT_VARIANTKEY, DEFAULT_NUMCYCLES, DEFAULT_BATCHSIZE, DEFAULT_WIDTH0, DEFAULT_WIDTH1, DEFAULT_WIDTH2}		
 		Addanalysisroot(Fen2docid(START_FEN), sr)				
 		ars = append(ars, sr)
 	}

@@ -20,6 +20,13 @@ const DEFAULT_WIDTH0 = 10
 const DEFAULT_WIDTH1 = 2
 const DEFAULT_WIDTH2 = 2
 
+const DEFAULT_ANALYSISDEPTH = 20
+const DEFAULT_ENGINEDEPTH = 20
+const DEFAULT_BOOKNAME = "default"
+const DEFAULT_VARIANTKEY = "atomic"
+const DEFAULT_NUMCYCLES = 1
+const DEFAULT_BATCHSIZE = 10
+
 const INF_MINIMAX_DEPTH = 1000
 
 const Engname = "engines/stockfish9"
@@ -445,9 +452,9 @@ func (b Book) MakeAlgebmove(algeb string, fen string) string{
 	return MakeAlgebmoveStandard(algeb, fen)
 }
 
-func (b Book) SelectRecursive(fen string, depth int64, maxdepth int64, line []string) string{
+func (b Book) SelectRecursive(fen string, depth int64, ar Analysisroot, line []string) string{
 	fmt.Println("selecting fen", depth, line, fen)
-	if depth > maxdepth{
+	if depth > ar.Depth{
 		fmt.Println("max depth exceeded")
 		return ""
 	}
@@ -455,13 +462,13 @@ func (b Book) SelectRecursive(fen string, depth int64, maxdepth int64, line []st
 		mli := b.Getmovesbyfen(fen)
 		maxmoves := 2
 		if depth == 0{
-			maxmoves = Envint("WIDTH0", DEFAULT_WIDTH0)
+			maxmoves = ar.Width0
 		}
 		if depth == 1{
-			maxmoves = Envint("WIDTH1", DEFAULT_WIDTH1)
+			maxmoves = ar.Width1
 		}
 		if depth == 2{
-			maxmoves = Envint("WIDTH2", DEFAULT_WIDTH2)
+			maxmoves = ar.Width2
 		}
 		if len(mli) < 3{
 			maxmoves = len(mli)
@@ -469,30 +476,30 @@ func (b Book) SelectRecursive(fen string, depth int64, maxdepth int64, line []st
 		sel := rand.Intn(maxmoves)
 		selmove := mli[sel]
 		newfen := b.MakeAlgebmove(selmove.Algeb, fen)
-		return b.SelectRecursive(newfen, depth + 1, maxdepth, append(line, selmove.Algeb))
+		return b.SelectRecursive(newfen, depth + 1, ar, append(line, selmove.Algeb))
 	}else{
 		fmt.Println("selected", fen)
 		return fen
 	}
 }
 
-func (b Book) Select(maxdepth int64) string{
-	return b.SelectRecursive(b.Rootfen, 0, maxdepth, []string{})
+func (b Book) Select(ar Analysisroot) string{
+	return b.SelectRecursive(b.Rootfen, 0, ar, []string{})
 }
 
 func (b Book) Fullname() string{
 	return fmt.Sprintf("[Book %s %s]", b.Name, b.Variantkey)
 }
 
-func (b Book) Addone(maxdepth int64, enginedepth int64) string{
+func (b Book) Addone(ar Analysisroot) string{
 	fmt.Println("add one to", b.Fullname())
-	fen := b.Select(maxdepth)
+	fen := b.Select(ar)
 	if fen == "" {
 		fmt.Println("add one failed")
 		return ""
 	}else{
 		fmt.Println("analyzing", fen)
-		p := Analyze(fen, int(enginedepth), b.Variantkey)
+		p := Analyze(fen, int(ar.Enginedepth), b.Variantkey)
 		fmt.Println("storing", fen, p.Docid)
 		b.StorePosition(p)
 		return fen
