@@ -20,6 +20,8 @@ const DEFAULT_WIDTH0 = 10
 const DEFAULT_WIDTH1 = 2
 const DEFAULT_WIDTH2 = 2
 
+const INF_MINIMAX_DEPTH = 1000
+
 const Engname = "engines/stockfish9"
 
 var Eng, _ = uci.NewEngine(Engname)
@@ -41,6 +43,7 @@ type MultipvItem struct{
 	Score int64
 	Eval int64
 	Depth int64
+	Minimaxdepth int64
 }
 
 func (mi MultipvItem) Serialize() map[string]interface{}{
@@ -58,6 +61,7 @@ func MultipvItemFromdata(data map[string]interface{}) MultipvItem{
 		data["score"].(int64),
 		data["eval"].(int64),
 		data["depth"].(int64),
+		INF_MINIMAX_DEPTH,
 	}
 }
 
@@ -142,8 +146,8 @@ func Analyze(fen string, depth int, variantkey string) Position {
 			}else{
 				score = MATE_SCORE
 			}
-		}
-		mi := MultipvItem{move.BestMoves[0], score, score, depth}
+		}		
+		mi := MultipvItem{move.BestMoves[0], score, score, depth, INF_MINIMAX_DEPTH}
 		p.SetMove(mi)
 	}
 	fmt.Println(p)
@@ -517,8 +521,11 @@ func (b *Book) Minimaxrecursive(fen string, line []string, docids []string, dept
 		nodes = newnodes
 		if value < -INF_SCORE{
 			value = mi.Score
-		}	
-		p.Moves[algeb] = MultipvItem{algeb, mi.Score, value, mi.Depth}
+		}
+		// don't overwrite eval of low depth nodes
+		if depth < mi.Minimaxdepth{
+			p.Moves[algeb] = MultipvItem{algeb, mi.Score, value, mi.Depth, depth}
+		}			
 		if depth == 0{
 			fmt.Println(algeb, mi.Score, value)	
 		}		
