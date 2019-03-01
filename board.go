@@ -16,9 +16,11 @@ import (
 const INF_SCORE = 10000
 const MATE_SCORE = 9000
 
+const DEFAULT_CUTOFF = 500
+
 const DEFAULT_WIDTH0 = 10
 const DEFAULT_WIDTH1 = 2
-const DEFAULT_WIDTH2 = 2
+const DEFAULT_WIDTH2 = 1
 
 const DEFAULT_ANALYSISDEPTH = 20
 const DEFAULT_ENGINEDEPTH = 20
@@ -460,7 +462,7 @@ func (b Book) SelectRecursive(fen string, depth int64, ar Analysisroot, line []s
 	}
 	if b.Hasfen(fen){
 		mli := b.Getmovesbyfen(fen)
-		maxmoves := 2
+		maxmoves := 1
 		if depth == 0{
 			maxmoves = ar.Width0
 		}
@@ -475,6 +477,10 @@ func (b Book) SelectRecursive(fen string, depth int64, ar Analysisroot, line []s
 		}
 		sel := rand.Intn(maxmoves)
 		selmove := mli[sel]
+		// cutoff
+		if ( selmove.Score < -ar.Cutoff ) || ( selmove.Score > ar.Cutoff ){
+			return ""
+		}
 		newfen := b.MakeAlgebmove(selmove.Algeb, fen)
 		return b.SelectRecursive(newfen, depth + 1, ar, append(line, selmove.Algeb))
 	}else{
@@ -506,26 +512,38 @@ func (b Book) Addone(ar Analysisroot) string{
 	}	
 }
 
-func (b *Book) Minimaxrecursive(fen string, line []string, docids []string, depth int64, maxdepth int64, seldepth int64, nodes int64) (int64, int64, int64){
+func (b *Book) Minimaxrecursive(fen string, line []string, docids []string, depth int64, maxdepth int64, seldepth int64, nodes int64, cutoff int64) (int64, int64, int64){
 	//fmt.Println("minimax", fen, line, docids, depth, maxdepth)
 	max := int64(-INF_SCORE)
+	// max depth exceeded
 	if depth > maxdepth{		
 		return 2 * max, seldepth, nodes
 	}
 	docid := Fen2docid(fen)
-	p, ok := b.Poscache[docid]
+	// repetition
+	for _, testdocid := range docids{
+		if testdocid == docid{
+			return 2 * max, seldepth, nodes	
+		}
+	}
+	newdocids := append(docids, docid)
+	// check if position is found
+	p, ok := b.Poscache[docid]	
 	if !ok{		
 		return 2 * max, seldepth, nodes
-	}
+	}	
 	if depth > seldepth{
 		seldepth = depth
 	}
 	nodes += 1
 	for algeb, mi := range p.Moves{		
-		newfen := b.MakeAlgebmove(algeb, fen)
-		value, newseldepth, newnodes := b.Minimaxrecursive(newfen, append(line, algeb), append(docids, docid), depth + 1, maxdepth, seldepth, nodes)
-		seldepth = newseldepth
-		nodes = newnodes
+		// cutoff
+		value := mi.Score
+		if ( mi.Score >= -cutoff ) && ( mi.Score <= cutoff ){
+			newfen := b.MakeAlgebmove(algeb, fen)
+			value, seldepth, nodes = b.Minimaxrecursive(newfen, append(line, algeb), newdocids, depth + 1, maxdepth, seldepth, nodes, cutoff)			
+		}
+		// failed node
 		if value < -INF_SCORE{
 			value = mi.Score
 		}
@@ -543,11 +561,11 @@ func (b *Book) Minimaxrecursive(fen string, line []string, docids []string, dept
 	return -max, seldepth, nodes
 }
 
-func (b *Book) Minimaxout(maxdepth int64){
+func (b *Book) Minimaxout(ar Analysisroot){
 	start := time.Now()
 	fmt.Println("minimaxing out", b.Fullname())
 	b.Synccache()
-	value, seldepth, nodes := b.Minimaxrecursive(b.Rootfen, []string{}, []string{}, 0, maxdepth, 0, 0)
+	value, seldepth, nodes := b.Minimaxrecursive(b.Rootfen, []string{}, []string{}, 0, ar.Depth, 0, 0, ar.Cutoff)
 	fmt.Println("minimax done", -value, seldepth, nodes)
 	elapsed := time.Since(start)
 	fmt.Println("minimaxing done", b.Fullname(), "took", elapsed, "rate", float32(nodes) / float32(elapsed) * 1e9)
