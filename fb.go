@@ -204,7 +204,7 @@ func Getanalysisroots() []Analysisroot{
 func (b *Book) StorePosition(p Position){	
 	b.Positions.Doc(p.Docid).Set(ctx, map[string]interface{}{
 		"fen": p.Fen,
-		"moves":  p.Serialize(),
+		"moves": p.Serialize(),
 	})
 	b.Poscache[p.Docid] = p
 }

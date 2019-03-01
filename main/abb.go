@@ -2,9 +2,7 @@ package main
 
 import(
 	"fmt"
-	"os"
 	"time"
-	"strconv"
 
 	"github.com/handywebprojects/abb"
 )
@@ -21,23 +19,22 @@ func main(){
 	//ars := abb.Getanalysisroots()
 	//ar := ars[0]	
 	//abb.Delallpositions("defaultatomic")	
-	ar := abb.Analysisroot{abb.START_FEN, 20, 15, "default", "atomic"}
+	ar := abb.Analysisroot{abb.START_FEN, int64(abb.Envint("ANALYSISDEPTH", 20)), int64(abb.Envint("ENGINEDEPTH", 20)), "default", "atomic"}
 	fmt.Println("analysis root", ar)	
-	b := abb.NewBook(ar.Bookname, ar.Bookvariantkey, ar.Fen)			
+	fmt.Println("analysis widths", abb.Envint("WIDTH0", abb.DEFAULT_WIDTH0), abb.Envint("WIDTH1", abb.DEFAULT_WIDTH1), abb.Envint("WIDTH2", abb.DEFAULT_WIDTH2))	
+	b := abb.NewBook(ar.Bookname, ar.Bookvariantkey, ar.Fen)				
 
-	numcycles := 1
-	numcyclesstr, hasnumcycles := os.LookupEnv("NUMCYCLES")
-	if hasnumcycles{
-		numcycles, _ = strconv.Atoi(numcyclesstr)
-	}
+	b.Synccache()
+
+	numcycles := abb.Envint("NUMCYCLES", 1)
 
 	fmt.Println("build book", b.Fullname(), "cycles", numcycles)
-	time.Sleep(10 * time.Second)
+	//time.Sleep(10 * time.Second)
 
 	for cycle := 0; cycle < numcycles; cycle++{
 		fmt.Println("build cycle", cycle, "of", numcycles)
-		time.Sleep(10 * time.Second)
-		for i := 0; i < 50; i++ {
+		//time.Sleep(10 * time.Second)
+		for i := 0; i < 5; i++ {
 			fmt.Println("cycle", i)
 			b.Addone(ar.Depth, ar.Enginedepth)
 			fmt.Println("position cache size", len(b.Poscache))

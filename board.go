@@ -16,6 +16,10 @@ import (
 const INF_SCORE = 10000
 const MATE_SCORE = 9000
 
+const DEFAULT_WIDTH0 = 10
+const DEFAULT_WIDTH1 = 2
+const DEFAULT_WIDTH2 = 2
+
 const Engname = "engines/stockfish9"
 
 var Eng, _ = uci.NewEngine(Engname)
@@ -447,13 +451,13 @@ func (b Book) SelectRecursive(fen string, depth int64, maxdepth int64, line []st
 		mli := b.Getmovesbyfen(fen)
 		maxmoves := 2
 		if depth == 0{
-			maxmoves = 10
+			maxmoves = Envint("WIDTH0", DEFAULT_WIDTH0)
 		}
 		if depth == 1{
-			maxmoves = 3
+			maxmoves = Envint("WIDTH1", DEFAULT_WIDTH1)
 		}
 		if depth == 2{
-			maxmoves = 3
+			maxmoves = Envint("WIDTH2", DEFAULT_WIDTH2)
 		}
 		if len(mli) < 3{
 			maxmoves = len(mli)
