@@ -523,7 +523,7 @@ func (b *Book) Minimaxrecursive(fen string, line []string, docids []string, dept
 	// repetition
 	for _, testdocid := range docids{
 		if testdocid == docid{
-			return 2 * max, seldepth, nodes	
+			return 0, seldepth, nodes	
 		}
 	}
 	newdocids := append(docids, docid)
